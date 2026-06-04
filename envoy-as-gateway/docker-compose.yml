@@ -1,0 +1,59 @@
+services:
+  # --- Mock API backend (serves OAS examples) ---
+  app:
+    build: ./app
+    volumes:
+      - ./openapi.yaml:/app/openapi.yaml:ro
+    networks: [gateway]
+
+  # --- Redis for rate limit storage ---
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    ports:
+      - "6379:6379"
+    networks: [gateway]
+
+  # --- Rate limit service (envoyproxy/ratelimit) ---
+  ratelimit:
+    image: envoyproxy/ratelimit:master
+    environment:
+      - USE_STATSD=false
+      - LOG_LEVEL=warn
+      - REDIS_SOCKET_TYPE=tcp
+      - REDIS_URL=redis:6379
+      - RUNTIME_ROOT=/data
+      - RUNTIME_SUBDIRECTORY=ratelimit
+      - RUNTIME_IGNOREDOTFILES=true
+      - DISABLE_STATS=true
+    volumes:
+      - ./ratelimit:/data/ratelimit/config:ro
+    depends_on: [redis]
+    networks: [gateway]
+
+  # --- External auth service (validates Basic Auth credentials) ---
+  authz:
+    build: ./authz
+    networks: [gateway]
+
+  # --- Envoy gateway ---
+  envoy:
+    image: envoyproxy/envoy:v1.31-latest
+    command: ["-c", "/etc/envoy/envoy.yaml", "--log-level", "info"]
+    volumes:
+      - ./envoy.yaml:/etc/envoy/envoy.yaml:ro
+    ports:
+      - "8080:8080"
+      - "9901:9901"
+    depends_on: [app, ratelimit, authz]
+    networks: [gateway]
+    tty: true
+
+  # --- Test client (exercises auth & rate limits) ---
+  test-client:
+    build: ./test-client
+    depends_on: [envoy]
+    networks: [gateway]
+
+networks:
+  gateway: {}

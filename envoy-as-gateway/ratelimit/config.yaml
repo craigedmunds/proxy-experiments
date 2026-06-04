@@ -1,0 +1,41 @@
+# Rate limit configuration
+# Uses artificially low limits to easily demonstrate rate limiting in action.
+# Limits are GLOBAL per path (shared across all clients).
+# Each path has both per-minute and per-hour limits.
+domain: api_gateway
+descriptors:
+  # /pets: 5/minute, 20/hour
+  - key: path
+    value: "/pets"
+    rate_limit:
+      unit: minute
+      requests_per_unit: 5
+  - key: path_hour
+    value: "/pets"
+    rate_limit:
+      unit: hour
+      requests_per_unit: 20
+
+  # /pets/{id}: 8/minute, 30/hour
+  - key: path
+    value: "/pets/{id}"
+    rate_limit:
+      unit: minute
+      requests_per_unit: 8
+  - key: path_hour
+    value: "/pets/{id}"
+    rate_limit:
+      unit: hour
+      requests_per_unit: 30
+
+  # /pets/{id}/vaccinations: 5/minute, 20/hour
+  - key: path
+    value: "/pets/{id}/vaccinations"
+    rate_limit:
+      unit: minute
+      requests_per_unit: 5
+  - key: path_hour
+    value: "/pets/{id}/vaccinations"
+    rate_limit:
+      unit: hour
+      requests_per_unit: 20
