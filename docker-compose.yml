@@ -1,0 +1,30 @@
+services:
+  app:
+    build: ./app
+    networks: [demo]
+
+  envoy:
+    image: envoyproxy/envoy:v1.31-latest
+    command: ["-c", "/etc/envoy/envoy.yaml", "--log-level", "info"]
+    volumes:
+      - ./envoy.yaml:/etc/envoy/envoy.yaml:ro
+    ports:
+      - "8080:8080"
+      - "9901:9901"
+    networks: [demo]
+    depends_on: [app]
+
+  controller:
+    build: ./controller
+    ports:
+      - "8081:8081"
+    networks: [demo]
+    depends_on: [envoy]
+
+  loadgen:
+    build: ./loadgen
+    networks: [demo]
+    depends_on: [envoy]
+
+networks:
+  demo: {}
