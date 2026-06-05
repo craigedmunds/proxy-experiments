@@ -39,7 +39,7 @@ services:
   # --- Envoy gateway ---
   envoy:
     image: envoyproxy/envoy:v1.31-latest
-    command: ["-c", "/etc/envoy/envoy.yaml", "--log-level", "info"]
+    command: ["-c", "/etc/envoy/envoy.yaml", "--log-level", "info", "--file-flush-interval-msec", "0"]
     volumes:
       - ./envoy.yaml:/etc/envoy/envoy.yaml:ro
     ports:

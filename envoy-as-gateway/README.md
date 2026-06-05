@@ -38,29 +38,29 @@ docker compose run --rm test-client
 
 ```bash
 # Authenticated request
-curl -u demo-client:demo-secret-123 http://localhost:8080/pets
+curl -u ck_a1b2c3d4e5f6g7h8:cs_z9y8x7w6v5u4t3s2r1q0p9o8n7m6l5k4 http://localhost:8080/pets
 
 # Unauthenticated (rejected)
 curl http://localhost:8080/pets
 
 # Bad credentials (rejected)
-curl -u demo-client:wrong http://localhost:8080/pets
+curl -u ck_a1b2c3d4e5f6g7h8:wrong http://localhost:8080/pets
 
 # Health check (no auth required)
 curl http://localhost:8080/health
 
 # Hit rate limit (send rapidly)
 for i in $(seq 1 10); do
-  curl -s -o /dev/null -w "%{http_code}\n" -u demo-client:demo-secret-123 http://localhost:8080/pets
+  curl -s -o /dev/null -w "%{http_code}\n" -u ck_a1b2c3d4e5f6g7h8:cs_z9y8x7w6v5u4t3s2r1q0p9o8n7m6l5k4 http://localhost:8080/pets
 done
 ```
 
 ## Client Credentials
 
-| Client ID | Client Secret | Notes |
+| Client Key | Client Secret | Notes |
 |---|---|---|
-| `demo-client` | `demo-secret-123` | Primary test client |
-| `test-app` | `test-secret-456` | Secondary client |
+| `ck_a1b2c3d4e5f6g7h8` | `cs_z9y8x7w6v5u4t3s2r1q0p9o8n7m6l5k4` | Primary test client |
+| `ck_j9k8l7m6n5o4p3q2` | `cs_f1e2d3c4b5a6z7y8x9w0v1u2t3s4r5q6` | Secondary client |
 
 ## Rate Limits
 

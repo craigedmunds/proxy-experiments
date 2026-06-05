@@ -13,8 +13,8 @@ app = Flask(__name__)
 
 # Client credentials database (client_id -> client_secret)
 CLIENTS = {
-    "demo-client": "demo-secret-123",
-    "test-app": "test-secret-456",
+    "ck_a1b2c3d4e5f6g7h8": "cs_z9y8x7w6v5u4t3s2r1q0p9o8n7m6l5k4",
+    "ck_j9k8l7m6n5o4p3q2": "cs_f1e2d3c4b5a6z7y8x9w0v1u2t3s4r5q6",
 }
 
 # Path pattern normalization for rate limit grouping

@@ -13,8 +13,8 @@ import requests
 from requests.auth import HTTPBasicAuth
 
 GATEWAY = "http://envoy:8080"
-VALID_AUTH = HTTPBasicAuth("demo-client", "demo-secret-123")
-INVALID_AUTH = HTTPBasicAuth("demo-client", "wrong-password")
+VALID_AUTH = HTTPBasicAuth("ck_a1b2c3d4e5f6g7h8", "cs_z9y8x7w6v5u4t3s2r1q0p9o8n7m6l5k4")
+INVALID_AUTH = HTTPBasicAuth("ck_a1b2c3d4e5f6g7h8", "cs_invalid_secret")
 
 
 def ts():
@@ -135,7 +135,7 @@ def main():
     print("  ENVOY GATEWAY — RATE LIMITING & AUTH TEST CLIENT")
     print("=" * 60)
     print(f"\n  Target: {GATEWAY}")
-    print(f"  Client: demo-client")
+    print(f"  Client: ck_a1b2c3d4e5f6g7h8")
 
     # Wait for services to be ready
     print("\n  Waiting for gateway to be ready...", end="", flush=True)
