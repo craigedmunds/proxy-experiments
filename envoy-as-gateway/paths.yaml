@@ -1,0 +1,43 @@
+# Path configuration for the API gateway.
+# Defines per-path authorization (required claims/scopes) and rate limits.
+# The generator reads this + oas.yaml to produce envoy.yaml and ratelimit/config.yaml.
+
+/pets:
+  methods:
+    - methodName: GET
+      claim: pets:read
+      rateLimit:
+        minute: 5
+        hour: 20
+    - methodName: POST
+      claim: pets:write
+      rateLimit:
+        minute: 3
+        hour: 10
+
+/pets/{id}:
+  methods:
+    - methodName: GET
+      claim: pets:read
+      rateLimit:
+        minute: 8
+        hour: 30
+    - methodName: DELETE
+      claim: pets:write
+      rateLimit:
+        minute: 3
+        hour: 10
+
+/pets/{id}/vaccinations:
+  methods:
+    - methodName: GET
+      claim: pets:read
+      rateLimit:
+        minute: 5
+        hour: 20
+
+/health:
+  methods:
+    - methodName: GET
+      claim: null
+      rateLimit: null

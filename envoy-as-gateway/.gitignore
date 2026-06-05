@@ -1,0 +1,3 @@
+# Generated configs live in Docker volumes, but ignore if run locally
+envoy.generated.yaml
+ratelimit/config.yaml

@@ -1,9 +1,17 @@
 services:
+  # --- Config generator (runs first, produces envoy.yaml + ratelimit config) ---
+  generator:
+    build: ./generator
+    volumes:
+      - ./paths.yaml:/input/paths.yaml:ro
+      - generated-envoy:/output/envoy
+      - generated-ratelimit:/output/ratelimit
+
   # --- Mock API backend (serves OAS examples) ---
   app:
     build: ./app
     volumes:
-      - ./openapi.yaml:/app/openapi.yaml:ro
+      - ./oas.yaml:/app/openapi.yaml:ro
     networks: [gateway]
 
   # --- Redis for rate limit storage ---
@@ -27,13 +35,19 @@ services:
       - RUNTIME_IGNOREDOTFILES=true
       - DISABLE_STATS=true
     volumes:
-      - ./ratelimit:/data/ratelimit/config:ro
-    depends_on: [redis]
+      - generated-ratelimit:/data/ratelimit/config:ro
+    depends_on:
+      generator:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
     networks: [gateway]
 
-  # --- External auth service (validates Basic Auth credentials) ---
+  # --- External auth service (validates Basic Auth OR Bearer, enforces scopes) ---
   authz:
     build: ./authz
+    volumes:
+      - ./paths.yaml:/app/paths.yaml:ro
     networks: [gateway]
 
   # --- Envoy gateway ---
@@ -41,19 +55,33 @@ services:
     image: envoyproxy/envoy:v1.31-latest
     command: ["-c", "/etc/envoy/envoy.yaml", "--log-level", "info", "--file-flush-interval-msec", "0"]
     volumes:
-      - ./envoy.yaml:/etc/envoy/envoy.yaml:ro
+      - generated-envoy:/etc/envoy:ro
     ports:
       - "8080:8080"
       - "9901:9901"
-    depends_on: [app, ratelimit, authz]
+    depends_on:
+      generator:
+        condition: service_completed_successfully
+      app:
+        condition: service_started
+      ratelimit:
+        condition: service_started
+      authz:
+        condition: service_started
     networks: [gateway]
     tty: true
 
   # --- Test client (exercises auth & rate limits) ---
   test-client:
     build: ./test-client
-    depends_on: [envoy]
+    depends_on:
+      envoy:
+        condition: service_started
     networks: [gateway]
+
+volumes:
+  generated-envoy:
+  generated-ratelimit:
 
 networks:
   gateway: {}
